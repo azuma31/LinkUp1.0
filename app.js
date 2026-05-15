@@ -135,6 +135,11 @@ class SecureVideoChat {
             permissionStartBtn: document.getElementById('permissionStartBtn'),
             permissionCloseBtn: document.getElementById('permissionCloseBtn'),
             helpBtn: document.getElementById('helpBtn'),
+            customIdModal: document.getElementById('customIdModal'),
+            customIdInput: document.getElementById('customIdInput'),
+            customIdConfirmBtn: document.getElementById('customIdConfirmBtn'),
+            customIdAutoBtn: document.getElementById('customIdAutoBtn'),
+            customIdHint: document.getElementById('customIdHint'),
             shiftShortcutUrl: document.getElementById('shiftShortcutUrl'),
             saveShortcutBtn: document.getElementById('saveShortcutBtn'),
             shortcutSavedMsg: document.getElementById('shortcutSavedMsg')
@@ -202,6 +207,62 @@ class SecureVideoChat {
             console.error('初期化エラー:', error);
             this.showNotification('エラー', '初期化に失敗しました', 'error');
         }
+    }
+
+    // カスタムIDをモーダルで取得（毎回表示）
+    askCustomId() {
+        return new Promise(resolve => {
+            const modal = this.elements.customIdModal;
+            const input = this.elements.customIdInput;
+            const hint = this.elements.customIdHint;
+
+            // 表示リセット
+            input.value = '';
+            hint.textContent = '';
+            hint.className = 'custom-id-hint';
+            modal.classList.add('visible');
+            input.focus();
+
+            // バリデーション
+            const validate = (val) => {
+                if (!val) return null; // 空＝自動生成、OK
+                if (/^[a-zA-Z0-9\-_]+$/.test(val)) return null;
+                return '半角英数字・ハイフン・アンダースコアのみ使用できます';
+            };
+
+            input.addEventListener('input', () => {
+                const err = validate(input.value.trim());
+                hint.textContent = err || '';
+                hint.className = 'custom-id-hint' + (err ? ' error' : '');
+            });
+
+            const confirm = () => {
+                const val = input.value.trim();
+                const err = validate(val);
+                if (err) {
+                    hint.textContent = err;
+                    hint.className = 'custom-id-hint error';
+                    return;
+                }
+                modal.classList.remove('visible');
+                resolve(val || null); // 空ならnull（自動生成）
+            };
+
+            // 決定ボタン
+            this.elements.customIdConfirmBtn.addEventListener('click', confirm, { once: true });
+
+            // Enterキーでも決定
+            const onEnter = (e) => {
+                if (e.key === 'Enter') { confirm(); input.removeEventListener('keydown', onEnter); }
+            };
+            input.addEventListener('keydown', onEnter);
+
+            // 自動生成ボタン
+            this.elements.customIdAutoBtn.addEventListener('click', () => {
+                modal.classList.remove('visible');
+                resolve(null);
+            }, { once: true });
+        });
     }
 
     // 権限説明モーダルを表示してOKを待つ（初回のみ自動表示）
@@ -281,18 +342,8 @@ class SecureVideoChat {
             const exportedKey = await CryptoUtil.exportKey(this.encryptionKey);
             this.elements.encryptionKeyDisplay.value = exportedKey;
 
-            // カスタムIDの入力を促すアラートを表示
-            const useCustomId = confirm("カスタムIDを使用しますか？");
-            let customId = null;
-
-            if (useCustomId) {
-                customId = prompt("使用したいカスタムIDを入力してください：", "");
-                // キャンセルされた場合やIDが空の場合は自動生成に戻る
-                if (!customId) {
-                    alert("カスタムIDが指定されなかったため、自動生成IDを使用します。");
-                    customId = null;
-                }
-            }
+            // デザインされたモーダルでカスタムIDを取得
+            const customId = await this.askCustomId();
 
             // PeerJSの初期化（カスタムIDがある場合は指定）
             this.peer = new Peer(customId, {

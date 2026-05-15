@@ -203,6 +203,32 @@
         </div>
     </div>
 
+    <!-- カスタムIDモーダル（毎回表示） -->
+    <div id="customIdModal" class="modal">
+        <div class="modal-content custom-id-modal-content">
+            <div class="custom-id-icon-wrap">
+                <i class="fas fa-id-card custom-id-icon"></i>
+            </div>
+            <h2 class="custom-id-title">あなたのIDを設定</h2>
+            <p class="custom-id-desc">接続時に相手へ伝えるIDです。空白のままにすると自動生成されます。</p>
+            <div class="custom-id-input-wrap">
+                <i class="fas fa-user"></i>
+                <input type="text" id="customIdInput" placeholder="例: yamato41（半角英数字・ハイフン）" maxlength="50" spellcheck="false" autocomplete="off">
+            </div>
+            <p class="custom-id-hint" id="customIdHint"></p>
+            <div class="custom-id-btn-row">
+                <button id="customIdAutoBtn" class="custom-id-auto-btn">
+                    <i class="fas fa-random"></i>
+                    自動生成
+                </button>
+                <button id="customIdConfirmBtn" class="custom-id-confirm-btn">
+                    <i class="fas fa-check-circle"></i>
+                    決定
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="notificationModal" class="modal">
         <div class="modal-content">
             <i class="modal-icon"></i>

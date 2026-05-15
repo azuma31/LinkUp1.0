@@ -1056,3 +1056,129 @@ button:disabled {
 .permission-start-btn {
     flex: 1;
 }
+
+/* ===== カスタムIDモーダル ===== */
+.custom-id-modal-content {
+    max-width: 420px;
+    text-align: left;
+    padding: 2rem;
+}
+
+.custom-id-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.1rem;
+}
+
+.custom-id-icon {
+    font-size: 2.2rem;
+    color: var(--primary-color);
+}
+
+.custom-id-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.custom-id-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 1.1rem;
+    line-height: 1.6;
+}
+
+.custom-id-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 0.65rem 0.85rem;
+    background: var(--background-color);
+    transition: border-color var(--animation-duration) ease;
+    margin-bottom: 0.4rem;
+}
+
+.custom-id-input-wrap:focus-within {
+    border-color: var(--primary-color);
+}
+
+.custom-id-input-wrap i {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.custom-id-input-wrap input {
+    flex: 1;
+    font-size: 0.95rem;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: monospace;
+}
+
+.custom-id-hint {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    min-height: 1.2em;
+    margin-bottom: 1rem;
+    padding-left: 0.2rem;
+}
+
+.custom-id-hint.error {
+    color: var(--danger-color);
+}
+
+.custom-id-btn-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.custom-id-auto-btn {
+    flex: 0 0 auto;
+    padding: 0.75rem 1rem;
+    background: var(--background-color);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all var(--animation-duration) ease;
+}
+
+.custom-id-auto-btn:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.custom-id-confirm-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: background-color var(--animation-duration) ease, transform var(--animation-duration) ease;
+}
+
+.custom-id-confirm-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
