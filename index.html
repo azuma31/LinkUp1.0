@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Video Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="app.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">
+                <i class="fas fa-video"></i>
+                <h1>Secure Video Chat</h1>
+            </div>
+            <div class="connection-status">
+                <span class="status-indicator"></span>
+                <span id="connectionStatus">未接続</span>
+            </div>
+        </header>
+
+        <main class="main-content" role="main">
+            <section class="section connection-panel">
+                <div class="security-info">
+                    <h2><i class="fas fa-shield-alt"></i> セキュリティ情報</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>あなたのID</label>
+                            <div class="copy-field">
+                                <input type="text" id="localPeerId" readonly>
+                                <button class="copy-btn" data-target="localPeerId" title="IDをコピー">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <label>暗号化キー</label>
+                            <div class="copy-field key-field">
+                                <input type="password" id="encryptionKey" readonly>
+                                <button class="toggle-visibility-btn">
+                                    <i class="fas fa-eye-slash"></i>
+                                </button>
+                                <button class="copy-btn" data-target="encryptionKey" title="キーをコピー">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <label>ミーティングURL</label>
+                            <div class="copy-field">
+                                <input type="text" id="meetingUrl" readonly>
+                                <button class="copy-btn" data-target="meetingUrl" title="URLをコピー">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="connection-controls">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="remotePeerId" placeholder="相手のIDを入力">
+                    </div>
+                    <div class="button-group">
+                        <button id="connectButton" class="primary-button">
+                            <i class="fas fa-phone"></i>接続
+                        </button>
+                        <button id="disconnectButton" class="danger-button" disabled>
+                            <i class="fas fa-phone-slash"></i>切断
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section video-grid">
+                <div class="video-container local">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-overlay">
+                        <span class="participant-name">あなた</span>
+                        <div class="video-controls">
+                            <button id="toggleMicButton" class="control-button">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button id="toggleVideoButton" class="control-button">
+                                <i class="fas fa-video"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="video-container remote">
+                    <video id="remoteVideo" autoplay playsinline></video>
+                    <div class="video-overlay">
+                        <span class="participant-name">相手</span>
+                        <div class="video-controls">
+                            <div class="connection-quality">
+                                <span id="connectionQuality">待機中...</span>
+                            </div>
+                            <button id="volumeControlButton" class="control-button">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="volume-slider-container">
+                        <div class="volume-label">
+                            <span>音量 <span id="volumeValue">100</span>%</span>
+                            <span class="boost-badge" id="boostBadge">BOOST</span>
+                        </div>
+                        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="200" value="100">
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <div class="encryption-status">
+                <i class="fas fa-lock"></i>
+                エンドツーエンド暗号化通信
+            </div>
+            <div class="app-info">
+                AES-GCM 256bit暗号化 <span class="separator">|</span> WebRTC P2P通信
+            </div>
+        </footer>
+    </div>
+
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <i class="modal-icon"></i>
+            <p class="modal-message"></p>
+            <button class="modal-close">OK</button>
+        </div>
+    </div>
+</body>
+</html>
