@@ -128,7 +128,16 @@ class SecureVideoChat {
             notificationModal: document.getElementById('notificationModal'),
             modalClose: document.querySelector('.modal-close'),
             volumeValue: document.getElementById('volumeValue'),
-            boostBadge: document.getElementById('boostBadge')
+            boostBadge: document.getElementById('boostBadge'),
+            securityToggleBtn: document.getElementById('securityToggleBtn'),
+            securityPanel: document.getElementById('securityPanel'),
+            permissionModal: document.getElementById('permissionModal'),
+            permissionStartBtn: document.getElementById('permissionStartBtn'),
+            permissionCloseBtn: document.getElementById('permissionCloseBtn'),
+            helpBtn: document.getElementById('helpBtn'),
+            shiftShortcutUrl: document.getElementById('shiftShortcutUrl'),
+            saveShortcutBtn: document.getElementById('saveShortcutBtn'),
+            shortcutSavedMsg: document.getElementById('shortcutSavedMsg')
         };
     }
 
@@ -182,6 +191,8 @@ class SecureVideoChat {
 
     // アプリケーションの初期化
     async initializeApp() {
+        // 権限説明モーダルのOKを待ってから初期化する
+        await this.waitForPermissionConsent();
         try {
             await this.initializePeer();
             await this.setupLocalStream();
@@ -190,6 +201,48 @@ class SecureVideoChat {
         } catch (error) {
             console.error('初期化エラー:', error);
             this.showNotification('エラー', '初期化に失敗しました', 'error');
+        }
+    }
+
+    // 権限説明モーダルを表示してOKを待つ（初回のみ自動表示）
+    waitForPermissionConsent() {
+        const STORAGE_KEY = 'permissionConsented';
+        const alreadyConsented = localStorage.getItem(STORAGE_KEY) === '1';
+
+        // ヘルプボタンでいつでも開けるようにする
+        this.elements.helpBtn.addEventListener('click', () => {
+            this.elements.permissionModal.classList.add('visible');
+        });
+
+        // 閉じるボタン（初回同意済みの場合のみ機能）
+        this.elements.permissionCloseBtn.addEventListener('click', () => {
+            if (localStorage.getItem(STORAGE_KEY) === '1') {
+                this.elements.permissionModal.classList.remove('visible');
+            }
+        });
+
+        // 初回はモーダルを表示してOKを待つ
+        if (!alreadyConsented) {
+            this.elements.permissionModal.classList.add('visible');
+            return new Promise(resolve => {
+                this.elements.permissionStartBtn.addEventListener('click', () => {
+                    this.elements.permissionModal.classList.remove('visible');
+                    localStorage.setItem(STORAGE_KEY, '1');
+
+                    // ポップアップ許可をユーザー操作中にリクエスト
+                    const testPopup = window.open('', '_blank', 'width=1,height=1');
+                    if (testPopup) testPopup.close();
+
+                    resolve();
+                }, { once: true });
+            });
+        } else {
+            // 2回目以降は即座に初期化（モーダルは表示しない）
+            // 「許可して開始する」ボタンは閉じるだけにする
+            this.elements.permissionStartBtn.addEventListener('click', () => {
+                this.elements.permissionModal.classList.remove('visible');
+            });
+            return Promise.resolve();
         }
     }
 
@@ -355,6 +408,56 @@ class SecureVideoChat {
         this.elements.modalClose.addEventListener('click', () => {
             this.elements.notificationModal.classList.remove('visible');
         });
+
+        // セキュリティパネルのトグル
+        this.elements.securityToggleBtn.addEventListener('click', () => {
+            const isCollapsed = this.elements.securityPanel.classList.toggle('collapsed');
+            this.elements.securityToggleBtn.classList.toggle('active', !isCollapsed);
+        });
+
+        // Shift×3 ショートカット
+        this.setupShiftShortcut();
+    }
+
+    // Shift×3ショートカットの初期化
+    setupShiftShortcut() {
+        const DEFAULT_URL = 'https://manaviewer.jp/';
+        const STORAGE_KEY = 'shiftShortcutUrl';
+
+        // 保存済みURLを読み込む
+        const saved = localStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
+        this.elements.shiftShortcutUrl.value = saved;
+
+        // 保存ボタン
+        this.elements.saveShortcutBtn.addEventListener('click', () => {
+            const url = this.elements.shiftShortcutUrl.value.trim();
+            if (!url) return;
+            localStorage.setItem(STORAGE_KEY, url);
+            // 保存完了アニメーション
+            const msg = this.elements.shortcutSavedMsg;
+            msg.classList.add('visible');
+            setTimeout(() => msg.classList.remove('visible'), 1800);
+        });
+
+        // Enterキーでも保存
+        this.elements.shiftShortcutUrl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') this.elements.saveShortcutBtn.click();
+        });
+
+        // Shift×3検知
+        let shiftTimes = [];
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Shift') return;
+            const now = Date.now();
+            shiftTimes.push(now);
+            // 1秒以内のものだけ残す
+            shiftTimes = shiftTimes.filter(t => now - t < 1000);
+            if (shiftTimes.length >= 3) {
+                shiftTimes = [];
+                const url = localStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
+                window.open(url, '_blank');
+            }
+        });
     }
 
     // 音量コントロールの表示切り替え
@@ -392,7 +495,7 @@ class SecureVideoChat {
     // 音量の更新
     updateVolume(value) {
         this.currentVolume = parseInt(value);
-        const gain = this.currentVolume / 100; // 0〜2.0 (200%対応)
+        const gain = this.currentVolume / 100; // 0〜3.0 (300%対応)
 
         if (this.gainNode) {
             this.gainNode.gain.value = gain;
@@ -410,11 +513,21 @@ class SecureVideoChat {
             icon.className = 'fas fa-volume-up';
         }
 
-        // スライダーの色を更新（100%超えたら色を変える）
+        // スライダーの色を直接style.backgroundで更新
         const slider = this.elements.volumeSlider;
-        const pct = (this.currentVolume / 200) * 100;
+        const pct = (this.currentVolume / 300) * 100; // 300%が最大
         const overBoost = this.currentVolume > 100;
-        slider.style.setProperty('--volume-pct', `${pct}%`);
+
+        let bg;
+        if (!overBoost) {
+            // 0〜100%: 白で塗る（100%ちょうどは33.333%の位置）
+            bg = `linear-gradient(to right, rgba(255,255,255,0.8) ${pct}%, rgba(255,255,255,0.2) ${pct}%)`;
+        } else {
+            // 101〜300%: 33.333%まで白、そこからオレンジ
+            const normalPct = (100 / 300) * 100; // = 33.333...
+            bg = `linear-gradient(to right, rgba(255,255,255,0.8) ${normalPct}%, #f59e0b ${normalPct}%, #f59e0b ${pct}%, rgba(255,255,255,0.2) ${pct}%)`;
+        }
+        slider.style.background = bg;
         slider.classList.toggle('boosted', overBoost);
 
         // ラベル更新
@@ -664,6 +777,7 @@ class SecureVideoChat {
         this.elements.volumeSliderContainer.classList.remove('visible');
         this.elements.volumeSlider.value = 100;
         this.elements.volumeSlider.classList.remove('boosted');
+        this.elements.volumeSlider.style.background = '';
         this.elements.volumeControlButton.querySelector('i').className = 'fas fa-volume-up';
         this.disconnectedBySelf = false;
     }

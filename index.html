@@ -17,66 +17,76 @@
                 <i class="fas fa-video"></i>
                 <h1>Secure Video Chat</h1>
             </div>
-            <div class="connection-status">
-                <span class="status-indicator"></span>
-                <span id="connectionStatus">未接続</span>
+
+            <!-- ID入力・接続ボタンをヘッダーに移動 -->
+            <div class="header-controls">
+                <div class="header-input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="remotePeerId" placeholder="相手のIDを入力">
+                </div>
+                <button id="connectButton" class="primary-button">
+                    <i class="fas fa-phone"></i><span>接続</span>
+                </button>
+                <button id="disconnectButton" class="danger-button" disabled>
+                    <i class="fas fa-phone-slash"></i><span>切断</span>
+                </button>
+            </div>
+
+            <div class="header-right">
+                <div class="connection-status">
+                    <span class="status-indicator"></span>
+                    <span id="connectionStatus">未接続</span>
+                </div>
+                <!-- セキュリティ情報トグルボタン -->
+                <button id="securityToggleBtn" class="icon-button" title="セキュリティ情報">
+                    <i class="fas fa-shield-alt"></i>
+                </button>
+                <!-- 説明・ヘルプボタン -->
+                <button id="helpBtn" class="icon-button" title="使い方・権限について">
+                    <i class="fas fa-question"></i>
+                </button>
             </div>
         </header>
 
+        <!-- セキュリティ情報パネル（デフォルト非表示） -->
+        <div id="securityPanel" class="security-panel collapsed">
+            <div class="security-panel-inner">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>あなたのID</label>
+                        <div class="copy-field">
+                            <input type="text" id="localPeerId" readonly>
+                            <button class="copy-btn" data-target="localPeerId" title="IDをコピー">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label>暗号化キー</label>
+                        <div class="copy-field key-field">
+                            <input type="password" id="encryptionKey" readonly>
+                            <button class="toggle-visibility-btn">
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                            <button class="copy-btn" data-target="encryptionKey" title="キーをコピー">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label>ミーティングURL</label>
+                        <div class="copy-field">
+                            <input type="text" id="meetingUrl" readonly>
+                            <button class="copy-btn" data-target="meetingUrl" title="URLをコピー">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <main class="main-content" role="main">
-            <section class="section connection-panel">
-                <div class="security-info">
-                    <h2><i class="fas fa-shield-alt"></i> セキュリティ情報</h2>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <label>あなたのID</label>
-                            <div class="copy-field">
-                                <input type="text" id="localPeerId" readonly>
-                                <button class="copy-btn" data-target="localPeerId" title="IDをコピー">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <label>暗号化キー</label>
-                            <div class="copy-field key-field">
-                                <input type="password" id="encryptionKey" readonly>
-                                <button class="toggle-visibility-btn">
-                                    <i class="fas fa-eye-slash"></i>
-                                </button>
-                                <button class="copy-btn" data-target="encryptionKey" title="キーをコピー">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <label>ミーティングURL</label>
-                            <div class="copy-field">
-                                <input type="text" id="meetingUrl" readonly>
-                                <button class="copy-btn" data-target="meetingUrl" title="URLをコピー">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="connection-controls">
-                    <div class="input-group">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="remotePeerId" placeholder="相手のIDを入力">
-                    </div>
-                    <div class="button-group">
-                        <button id="connectButton" class="primary-button">
-                            <i class="fas fa-phone"></i>接続
-                        </button>
-                        <button id="disconnectButton" class="danger-button" disabled>
-                            <i class="fas fa-phone-slash"></i>切断
-                        </button>
-                    </div>
-                </div>
-            </section>
-
             <section class="section video-grid">
                 <div class="video-container local">
                     <video id="localVideo" autoplay muted playsinline></video>
@@ -111,7 +121,7 @@
                             <span>音量 <span id="volumeValue">100</span>%</span>
                             <span class="boost-badge" id="boostBadge">BOOST</span>
                         </div>
-                        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="200" value="100">
+                        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="300" value="100" step="2">
                     </div>
                 </div>
             </section>
@@ -121,11 +131,76 @@
             <div class="encryption-status">
                 <i class="fas fa-lock"></i>
                 エンドツーエンド暗号化通信
+                <span class="separator">|</span>
+                AES-GCM 256bit暗号化
+                <span class="separator">|</span>
+                WebRTC P2P通信
             </div>
-            <div class="app-info">
-                AES-GCM 256bit暗号化 <span class="separator">|</span> WebRTC P2P通信
+            <div class="shortcut-setting">
+                <label class="shortcut-label">
+                    <i class="fas fa-bolt"></i>
+                    Shift×3 ジャンプ先
+                </label>
+                <div class="shortcut-input-wrap">
+                    <input type="url" id="shiftShortcutUrl" placeholder="https://example.com" spellcheck="false">
+                    <button id="saveShortcutBtn" class="shortcut-save-btn" title="保存">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+                <span class="shortcut-saved-msg" id="shortcutSavedMsg">保存しました</span>
             </div>
         </footer>
+    </div>
+
+    <!-- 権限説明モーダル（初回のみ自動表示） -->
+    <div id="permissionModal" class="modal">
+        <div class="modal-content permission-modal-content">
+            <div class="permission-icon-wrap">
+                <i class="fas fa-shield-alt permission-icon"></i>
+            </div>
+            <h2 class="permission-title">はじめに権限の許可が必要です</h2>
+            <p class="permission-desc">このアプリを使用するには、以下の権限を許可してください。<br>許可しないと正常に動作しません。</p>
+
+            <ul class="permission-list">
+                <li>
+                    <i class="fas fa-video"></i>
+                    <div>
+                        <strong>カメラ・マイク</strong>
+                        <span>映像・音声通話に使用します。ブラウザのダイアログで「許可」を選んでください。</span>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-window-restore"></i>
+                    <div>
+                        <strong>ポップアップ</strong>
+                        <span>Shift×3ショートカットで別ページを開くために必要です。</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="permission-popup-guide">
+                <div class="popup-guide-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ポップアップがブロックされた場合の許可手順
+                </div>
+                <ol class="popup-guide-steps">
+                    <li>アドレスバー右端に表示される <strong>ブロックアイコン（🚫または⊘）</strong> をクリック</li>
+                    <li>「<strong>ポップアップとリダイレクトを常に許可する</strong>」を選択</li>
+                    <li>「<strong>完了</strong>」をクリックしてページをリロード</li>
+                </ol>
+                <p class="popup-guide-note">※ Chromeの場合：アドレスバー右の <i class="fas fa-ban" style="color:#dc2626;font-size:0.8em;"></i> → サイトの設定 → ポップアップとリダイレクト → 許可</p>
+            </div>
+
+            <div class="permission-btn-row">
+                <button id="permissionStartBtn" class="permission-start-btn">
+                    <i class="fas fa-check-circle"></i>
+                    許可して開始する
+                </button>
+                <button id="permissionCloseBtn" class="permission-close-btn">
+                    閉じる
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="notificationModal" class="modal">
