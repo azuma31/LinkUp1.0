@@ -506,7 +506,15 @@ class SecureVideoChat {
             if (shiftTimes.length >= 3) {
                 shiftTimes = [];
                 const url = localStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
-                window.open(url, '_blank');
+                // 別ウィンドウ（タブではなくウィンドウ）で開く
+                // screen.availWidth/Heightで画面サイズいっぱいに開く（ブラウザ制限でtop/leftも指定が必要）
+                const w = window.screen.availWidth;
+                const h = window.screen.availHeight;
+                window.open(url, '_blank', `width=${w},height=${h},left=0,top=0,noopener`);
+                // 相手の音量を0にする
+                this.updateVolume(0);
+                const slider = this.elements.volumeSlider;
+                if (slider) slider.value = 0;
             }
         });
     }
